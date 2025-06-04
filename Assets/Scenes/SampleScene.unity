@@ -397,8 +397,10 @@ MonoBehaviour:
   moveSpeed: 10
   Health: 100
   isRunning: 0
-  isFighting: 0
   isDie: 0
+  isFighting: 0
+  comboStep: 0
+  comboTime: 2
 --- !u!114 &490305838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -589,6 +591,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1943187249992631569, guid: 775cd3b427d63974d8703d8fc87cc3ce, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 3b335320d7e5949f3825f1317e9e6ccb, type: 2}
     - target: {fileID: 7421653487955196459, guid: 775cd3b427d63974d8703d8fc87cc3ce, type: 3}
       propertyPath: m_Name
       value: CharBoss_01
