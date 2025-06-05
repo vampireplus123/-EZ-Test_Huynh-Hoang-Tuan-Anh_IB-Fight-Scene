@@ -13,7 +13,7 @@ public abstract class Fighter : MonoBehaviour
     [SerializeField] protected bool isFighting;
     public virtual void TakeDamge(int damage) { }
     public virtual void BeingHit() { }
-    protected virtual void Winner() { }
+    public virtual void Winner() { }
     public void ReturnWinnerForGameManager(){}
     protected virtual void Die() { }
     protected virtual void Attack() { }

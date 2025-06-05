@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
 public class Player : Fighter
 {
     private Vector2 movementVector;
@@ -22,6 +23,7 @@ public class Player : Fighter
     void Awake()
     {
         animator = GetComponentInChildren<Animator>();
+        animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotation;
 
@@ -47,11 +49,16 @@ public class Player : Fighter
     void OnEnable()
     {
         inputActions.Player.Enable();
+        GameManager.Instance.RegisterFighter(this);
     }
 
     void OnDisable()
     {
         inputActions.Player.Disable();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UnregisterFighter(this);
+        }
     }
 
     void FixedUpdate()
@@ -114,6 +121,8 @@ public class Player : Fighter
     {
         animator.SetTrigger("Die");
         gameObject.GetComponent<CapsuleCollider>().enabled = false;
+        gameObject.GetComponent<Player>().enabled = false;
+        GameManager.Instance.OnFighterDeath(this);
     }
     public override void TakeDamge(int damage)
     {
@@ -132,7 +141,7 @@ public class Player : Fighter
         Debug.Log(Health);
     }
 
-    protected override void Winner()
+    public override void Winner()
     {
         animator.SetTrigger("Win");
     }

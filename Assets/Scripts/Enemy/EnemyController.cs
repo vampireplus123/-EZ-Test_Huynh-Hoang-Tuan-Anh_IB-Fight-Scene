@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UIElements;
@@ -8,12 +9,14 @@ public class EnemyController : Fighter
     private NavMeshAgent agent;
     [SerializeField] private Transform Player;
     [SerializeField] private float AttackRange = 0.5f;
-    [SerializeField] private float nextAttackTime = 0f;
+    [SerializeField] private float nextAttackTime = 1.5f;
 
     void Start()
     {
         animator = GetComponentInChildren<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+
     }
 
     void Update()
@@ -22,6 +25,18 @@ public class EnemyController : Fighter
         Attack();
     }
 
+    void OnEnable()
+    {
+        GameManager.Instance.RegisterFighter(this);
+    }
+
+    void OnDisable()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UnregisterFighter(this);
+        }
+    }
 
     void FollowPlayer()
     {
@@ -34,9 +49,9 @@ public class EnemyController : Fighter
     {
         Vector3 EnemyTransform = this.transform.position;
         float distanceToPlayer = Vector3.Distance(EnemyTransform, Player.position);
-        if (distanceToPlayer <= AttackRange&& Time.time >= nextAttackTime)
+        if (distanceToPlayer <= AttackRange)
         {
-            animator.SetTrigger("Attack");
+            StartCoroutine(WaitForNextAttack());
         }
 
     }
@@ -56,10 +71,20 @@ public class EnemyController : Fighter
         animator.SetTrigger("Die");
         agent.enabled = false;
         GetComponent<CapsuleCollider>().enabled = false;
+        GameManager.Instance.OnFighterDeath(this);
+    }
+    public override void Winner()
+    {
+        animator.SetTrigger("Win");
     }
     public override void BeingHit()
     {
         animator.SetTrigger("BeingHit");
         TakeDamge(damage);
+    }
+    IEnumerator WaitForNextAttack()
+    {
+        yield return new WaitForSeconds(nextAttackTime);
+        animator.SetTrigger("Attack");
     }
 }
