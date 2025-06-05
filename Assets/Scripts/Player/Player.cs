@@ -1,15 +1,15 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(CharacterController))]
-[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(Rigidbody))]
 public class Player : Fighter
 {
     private Vector2 movementVector;
-    private Vector3 MoveDirection;
+    private Vector3 moveDirection;
     private Animator animator;
-    private CharacterController characterController;
+    private Rigidbody rb;
     private InputSystem_Actions inputActions;
     private float movementX;
     private float movementY;
@@ -21,22 +21,24 @@ public class Player : Fighter
 
     void Awake()
     {
-        animator = GetComponent<Animator>();
-        characterController = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
+        rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+
         inputActions = new InputSystem_Actions();
 
-        inputActions.Player.Move.performed += ctx =>
+        inputActions.Player.Move.performed += context =>
         {
-            movementVector = ctx.ReadValue<Vector2>();
+            movementVector = context.ReadValue<Vector2>();
             movementX = movementVector.x;
             movementY = movementVector.y;
-            MoveDirection = new Vector3(movementX, 0f, movementY);
+            moveDirection = new Vector3(movementX, 0f, movementY).normalized;
         };
 
-        inputActions.Player.Move.canceled += ctx =>
+        inputActions.Player.Move.canceled += context =>
         {
             movementVector = Vector2.zero;
-            MoveDirection = Vector3.zero;
+            moveDirection = Vector3.zero;
         };
 
         inputActions.Player.Attack.performed += ctx => Attack();
@@ -52,7 +54,7 @@ public class Player : Fighter
         inputActions.Player.Disable();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         PlayerControl();
     }
@@ -72,6 +74,7 @@ public class Player : Fighter
         ComboAnimationControl(comboStep);
         isFighting = true;
         lastComboTime = Time.time;
+        StartCoroutine(MoveWhenAfterCombo());
     }
 
     void ComboAnimationControl(int comboAnimation)
@@ -89,17 +92,17 @@ public class Player : Fighter
 
     void Moving()
     {
-        characterController.Move(MoveDirection * moveSpeed * Time.deltaTime);
-        animator.SetFloat("Speed", MoveDirection.magnitude);
+        Vector3 velocity = moveDirection * moveSpeed;
+        rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
+        animator.SetFloat("Speed", moveDirection.magnitude);
     }
 
     void Rotating()
     {
-        if (MoveDirection.magnitude >= 0.1f)
+        if (moveDirection.magnitude >= 0.1f)
         {
-            float targetAngle = MathF.Atan2(MoveDirection.x, MoveDirection.z) * Mathf.Rad2Deg;
+            float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
-            Moving();
         }
         else
         {
@@ -107,8 +110,47 @@ public class Player : Fighter
         }
     }
 
+    protected override void Die()
+    {
+        animator.SetTrigger("Die");
+        gameObject.GetComponent<CapsuleCollider>().enabled = false;
+    }
+    public override void TakeDamge(int damage)
+    {
+        if (Health <= 0)
+        {
+            Debug.Log("Over!!!");
+            Die();
+            return;
+        }
+        Health -= damage;
+    }
+    public override void BeingHit()
+    {
+        animator.SetTrigger("BeingHit");
+        Debug.Log("Enemy Hit toi");
+        Debug.Log(Health);
+    }
+
+    protected override void Winner()
+    {
+        animator.SetTrigger("Win");
+    }
     void PlayerControl()
     {
+        if (isFighting)
+        {
+            animator.SetFloat("Speed", 0f);
+            return;
+        }
         Rotating();
+        Moving();
     }
+
+    IEnumerator MoveWhenAfterCombo()
+    {
+        yield return new WaitForSeconds(1);
+        isFighting = false;
+    }
+
 }
