@@ -129,7 +129,6 @@ public class EnemyController : Fighter
     private IEnumerator RemoveAfterDeathAnimation()
     {
         yield return new WaitForSeconds(3f);
-        // EnemyPool.Instance.ReturnEnemy(gameObject);
         Destroy(gameObject);
     }
 }
