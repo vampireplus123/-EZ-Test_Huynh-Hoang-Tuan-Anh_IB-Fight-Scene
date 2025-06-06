@@ -677,7 +677,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPoint: {fileID: 1432514136}
-  delayForNextLevel: 5
+  delayForNextLevel: 10
 --- !u!4 &1780507606
 Transform:
   m_ObjectHideFlags: 0
@@ -907,7 +907,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1397731543425268159, guid: 95a2c3b5cbe4a4aee993ff5ec5d6bdf7, type: 3}
       propertyPath: damage
-      value: 100
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397731543425268159, guid: 95a2c3b5cbe4a4aee993ff5ec5d6bdf7, type: 3}
+      propertyPath: rotationSpeed
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2822164357704950528, guid: 95a2c3b5cbe4a4aee993ff5ec5d6bdf7, type: 3}
       propertyPath: m_LocalPosition.x
