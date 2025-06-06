@@ -564,11 +564,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f98780c635128d742b9a4e4ffdcebd60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -2.19
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f98780c635128d742b9a4e4ffdcebd60, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.65
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f98780c635128d742b9a4e4ffdcebd60, type: 3}
       propertyPath: m_LocalPosition.z
@@ -788,8 +788,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxLevel: 10
   CurrentLevel: 0
-  DamageStatsEnemy: 000000000000000000000000
-  EnemyPawnInTheLevel: 010000000200000032000000
+  DamageStatsEnemy: 000000003200000064000000
+  EnemyPawnInTheLevel: 010000000100000001000000
 --- !u!4 &1843453608
 Transform:
   m_ObjectHideFlags: 0

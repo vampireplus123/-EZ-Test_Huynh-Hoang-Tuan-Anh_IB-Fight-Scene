@@ -788,8 +788,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxLevel: 10
   CurrentLevel: 0
-  DamageStatsEnemy: 000000000000000000000000
-  EnemyPawnInTheLevel: 010000000200000032000000
+  DamageStatsEnemy: 0000000032000000
+  EnemyPawnInTheLevel: 0100000002000000
 --- !u!4 &1843453608
 Transform:
   m_ObjectHideFlags: 0
@@ -907,7 +907,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1397731543425268159, guid: 95a2c3b5cbe4a4aee993ff5ec5d6bdf7, type: 3}
       propertyPath: damage
-      value: 10
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 1397731543425268159, guid: 95a2c3b5cbe4a4aee993ff5ec5d6bdf7, type: 3}
       propertyPath: rotationSpeed

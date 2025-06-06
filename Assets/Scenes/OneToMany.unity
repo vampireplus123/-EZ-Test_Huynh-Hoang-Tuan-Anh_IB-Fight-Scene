@@ -788,8 +788,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxLevel: 10
   CurrentLevel: 0
-  DamageStatsEnemy: 000000000000000000000000
-  EnemyPawnInTheLevel: 010000000200000032000000
+  DamageStatsEnemy: 000000000500000005000000
+  EnemyPawnInTheLevel: 020000000300000004000000
 --- !u!4 &1843453608
 Transform:
   m_ObjectHideFlags: 0
