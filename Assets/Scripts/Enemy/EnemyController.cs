@@ -38,7 +38,6 @@ public class EnemyController : Fighter
         }
     }
 
-
     void OnDisable()
     {
         if (GameManager.Instance != null)
