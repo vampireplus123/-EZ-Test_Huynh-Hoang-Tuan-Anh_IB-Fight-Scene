@@ -23,11 +23,17 @@ public class Player : Fighter
     void Awake()
     {
         animator = GetComponentInChildren<Animator>();
-        animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotation;
-
         inputActions = new InputSystem_Actions();
+    }
+    void OnEnable()
+    {
+        inputActions.Player.Enable();
+    }
+
+    void Start()
+    {
 
         inputActions.Player.Move.performed += context =>
         {
@@ -44,20 +50,11 @@ public class Player : Fighter
         };
 
         inputActions.Player.Attack.performed += ctx => Attack();
+        
+        GameManager.Instance.RegisterFighter(this);
+        LevelManager.Instance.RegisterFighter(this);
     }
 
-    void OnEnable()
-    {
-        inputActions.Player.Enable();
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.RegisterFighter(this);
-        }
-        else
-        {
-            Debug.LogWarning("GameManager.Instance is null in EnemyController.OnEnable");
-        }
-    }
 
     void OnDisable()
     {
@@ -66,6 +63,7 @@ public class Player : Fighter
         {
             GameManager.Instance.UnregisterFighter(this);
         }
+        LevelManager.Instance.UnregisterFighter(this);
     }
 
     void FixedUpdate()
@@ -116,13 +114,17 @@ public class Player : Fighter
         if (moveDirection.magnitude >= 0.1f)
         {
             float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
+            Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
+
+            float rotationSpeed = 10f; 
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
         }
         else
         {
             animator.SetFloat("Speed", 0f);
         }
     }
+
 
     protected override void Die()
     {

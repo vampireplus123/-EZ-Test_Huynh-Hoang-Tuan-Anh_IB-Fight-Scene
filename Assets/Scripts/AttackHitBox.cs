@@ -9,7 +9,13 @@ public class AttackHitBox : MonoBehaviour
 
         if (victim != null && attacker != null)
         {
-            victim.TakeDamge(attacker.damage);
+            if (victim.tag == attacker.tag)
+            {
+                Debug.Log("Cham chung tag");
+                return;
+            }
+            Debug.Log("Touched");
+            victim.TakeDamge(attacker.GetDamage());
             victim.BeingHit();
         }
     }

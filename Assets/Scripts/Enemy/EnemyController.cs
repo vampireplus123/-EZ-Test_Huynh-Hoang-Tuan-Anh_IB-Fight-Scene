@@ -7,35 +7,24 @@ public class EnemyController : Fighter
 {
     private Animator animator;
     private NavMeshAgent agent;
-    [SerializeField] private Transform Player;
+    [SerializeField] private Transform PlayerTransform;
     [SerializeField] private float AttackRange = 0.5f;
     [SerializeField] private float nextAttackTime = 1.5f;
+    [SerializeField] private float spread = 0.5f;
+    bool isClose;
     private float lastAttackTime = 0f;
 
+    void OnEnable()
+    {
+        GameManager.Instance.RegisterFighter(this);
+        LevelManager.Instance.RegisterFighter(this);
+    }
     void Start()
     {
         animator = GetComponentInChildren<Animator>();
         agent = GetComponent<NavMeshAgent>();
-        animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
-
-    }
-
-    void Update()
-    {
-        FollowPlayer();
-        Attack();
-    }
-
-    void OnEnable()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.RegisterFighter(this);
-        }
-        else
-        {
-            Debug.LogWarning("GameManager.Instance is null in EnemyController.OnEnable");
-        }
+        GameObject PlayerDestination = GameObject.FindGameObjectWithTag("Player");
+        PlayerTransform = PlayerDestination.transform;
     }
 
     void OnDisable()
@@ -45,27 +34,60 @@ public class EnemyController : Fighter
             GameManager.Instance.UnregisterFighter(this);
         }
     }
+    void Update()
+    {
+        FollowPlayer();
+        LookAtPlayer();
+        Attack();
+    }
+
 
     void FollowPlayer()
     {
         float speed = agent.velocity.magnitude;
         animator.SetFloat("Speed", speed);
-        agent.SetDestination(Player.position);
+
+        Vector3 offset = new Vector3
+        (
+            Mathf.Sin(GetInstanceID() * 0.1f) * spread,
+            0,
+            Mathf.Cos(GetInstanceID() * 0.1f) * spread
+        );
+
+        Vector3 targetPosition = PlayerTransform.position + offset;
+        agent.SetDestination(targetPosition);
     }
+
+    void LookAtPlayer()
+    {
+        Vector3 lookDir = PlayerTransform.position - transform.position;
+        lookDir.y = 0f;
+        if (lookDir != Vector3.zero)
+        {
+            Quaternion toRotation = Quaternion.LookRotation(lookDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 5f);
+        }
+    }
+
 
     protected override void Attack()
     {
-        Vector3 enemyPosition = this.transform.position;
-        float distanceToPlayer = Vector3.Distance(enemyPosition, Player.position);
-
+        float distanceToPlayer = Vector3.Distance(transform.position, PlayerTransform.position);
         if (distanceToPlayer <= AttackRange)
         {
-
+            isClose = true;
+            Debug.Log(isClose);
             if (Time.time >= lastAttackTime + nextAttackTime)
             {
                 lastAttackTime = Time.time;
                 animator.SetTrigger("Attack");
             }
+        }
+        else
+        {
+            isClose = false;
+            Debug.Log($"Distance to Player: {distanceToPlayer}");
+            Debug.Log(isClose);
         }
     }
     public override void TakeDamge(int damage)
@@ -94,5 +116,9 @@ public class EnemyController : Fighter
     {
         animator.SetTrigger("BeingHit");
         TakeDamge(damage);
+    }
+    public override int SetDamage(int NewDamage)
+    {
+        return base.SetDamage(NewDamage);
     }
 }
