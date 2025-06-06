@@ -4,8 +4,8 @@ public abstract class Fighter : MonoBehaviour
 {
     [Header("Character Stats")]
     [SerializeField] protected float moveSpeed = 10f;
-    [SerializeField] protected int Health = 100;
-    [SerializeField] protected int damage = 100;
+    [SerializeField] public int Health = 100;
+    [SerializeField] public int damage = 100;
 
     [Header("Character Status")]
     [SerializeField] protected bool isRunning;
