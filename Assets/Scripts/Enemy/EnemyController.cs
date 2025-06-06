@@ -10,6 +10,7 @@ public class EnemyController : Fighter
     [SerializeField] private Transform Player;
     [SerializeField] private float AttackRange = 0.5f;
     [SerializeField] private float nextAttackTime = 1.5f;
+    private float lastAttackTime = 0f;
 
     void Start()
     {
@@ -27,8 +28,16 @@ public class EnemyController : Fighter
 
     void OnEnable()
     {
-        GameManager.Instance.RegisterFighter(this);
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RegisterFighter(this);
+        }
+        else
+        {
+            Debug.LogWarning("GameManager.Instance is null in EnemyController.OnEnable");
+        }
     }
+
 
     void OnDisable()
     {
@@ -47,13 +56,18 @@ public class EnemyController : Fighter
 
     protected override void Attack()
     {
-        Vector3 EnemyTransform = this.transform.position;
-        float distanceToPlayer = Vector3.Distance(EnemyTransform, Player.position);
+        Vector3 enemyPosition = this.transform.position;
+        float distanceToPlayer = Vector3.Distance(enemyPosition, Player.position);
+
         if (distanceToPlayer <= AttackRange)
         {
-            StartCoroutine(WaitForNextAttack());
-        }
 
+            if (Time.time >= lastAttackTime + nextAttackTime)
+            {
+                lastAttackTime = Time.time;
+                animator.SetTrigger("Attack");
+            }
+        }
     }
     public override void TakeDamge(int damage)
     {
@@ -81,10 +95,5 @@ public class EnemyController : Fighter
     {
         animator.SetTrigger("BeingHit");
         TakeDamge(damage);
-    }
-    IEnumerator WaitForNextAttack()
-    {
-        yield return new WaitForSeconds(nextAttackTime);
-        animator.SetTrigger("Attack");
     }
 }

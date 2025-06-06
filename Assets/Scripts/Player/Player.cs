@@ -48,9 +48,16 @@ public class Player : Fighter
 
     void OnEnable()
     {
-        inputActions.Player.Enable();
-        GameManager.Instance.RegisterFighter(this);
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RegisterFighter(this);
+        }
+        else
+        {
+            Debug.LogWarning("GameManager.Instance is null in EnemyController.OnEnable");
+        }
     }
+
 
     void OnDisable()
     {
