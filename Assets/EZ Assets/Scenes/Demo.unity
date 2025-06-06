@@ -240,6 +240,52 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &760603880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 760603882}
+  - component: {fileID: 760603881}
+  m_Layer: 0
+  m_Name: Enemy Pool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &760603881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 760603880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67e561a9742eb4f7198a5d20a23002e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 3910800941488529734, guid: fd02b151b67e346dea9a7971ccf9f463, type: 3}
+  poolSize: 0
+--- !u!4 &760603882
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 760603880}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.8035574, y: 5.6350107, z: -2.8687012}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,8 +676,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6178c4a59cbf14b60b722619d9c34394, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 3910800941488529734, guid: fd02b151b67e346dea9a7971ccf9f463, type: 3}
   spawnPoint: {fileID: 1432514136}
+  delayForNextLevel: 5
 --- !u!4 &1780507606
 Transform:
   m_ObjectHideFlags: 0
@@ -742,7 +788,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxLevel: 10
   CurrentLevel: 0
-  DamageStatsEnemy: 64000000140000001e00000028000000320000003c00000046000000500000005a00000064000000
+  DamageStatsEnemy: 00000000c8000000
+  EnemyPawnInTheLevel: 0100000002000000
 --- !u!4 &1843453608
 Transform:
   m_ObjectHideFlags: 0
@@ -858,6 +905,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1397731543425268159, guid: 95a2c3b5cbe4a4aee993ff5ec5d6bdf7, type: 3}
+      propertyPath: damage
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 2822164357704950528, guid: 95a2c3b5cbe4a4aee993ff5ec5d6bdf7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.53
@@ -916,3 +967,4 @@ SceneRoots:
   - {fileID: 1780507606}
   - {fileID: 1843453608}
   - {fileID: 1432514136}
+  - {fileID: 760603882}

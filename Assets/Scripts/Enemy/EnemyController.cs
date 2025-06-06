@@ -86,7 +86,6 @@ public class EnemyController : Fighter
         else
         {
             isClose = false;
-            Debug.Log($"Distance to Player: {distanceToPlayer}");
             Debug.Log(isClose);
         }
     }

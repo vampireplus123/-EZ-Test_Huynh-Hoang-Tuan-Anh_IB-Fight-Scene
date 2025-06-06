@@ -1,15 +1,16 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-    public GameObject enemyPrefab;
     public Transform spawnPoint;
     private List<Fighter> fighters = new List<Fighter>();
 
     public bool PlayerWon { get; private set; }
     public bool EnemyWon { get; private set; }
+    public float delayForNextLevel = 5f;
 
     private void Awake()
     {
@@ -22,74 +23,67 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    void Update()
+    private void Start()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            SpawnEnemy();
-        }
+        SpawnEnemiesForLevel();
     }
 
-    // Đăng ký fighter vào danh sách quản lý
     public void RegisterFighter(Fighter fighter)
     {
         if (!fighters.Contains(fighter))
-        {
             fighters.Add(fighter);
-        }
     }
 
-    // Hủy đăng ký fighter (ví dụ khi fighter chết hoặc thoát game)
     public void UnregisterFighter(Fighter fighter)
     {
         if (fighters.Contains(fighter))
-        {
             fighters.Remove(fighter);
-        }
     }
 
-    // Xử lý khi một fighter chết
     public void OnFighterDeath(Fighter deadFighter)
     {
-        // Xóa fighter chết khỏi danh sách quản lý
         UnregisterFighter(deadFighter);
 
-        // Nếu còn fighter sống, đánh dấu họ là người thắng
+        bool allEnemiesDead = true;
+        bool playerDead = true;
+
         foreach (Fighter f in fighters)
         {
-            f.Winner();
-
-            string winnerName = "Unknown";
+            if (f is EnemyController)
+                allEnemiesDead = false;
             if (f is Player)
-            {
-                winnerName = "Player";
-                PlayerWon = true;
-                EnemyWon = false;
-            }
-            else if (f is EnemyController)
-            {
-                winnerName = "Enemy";
-                EnemyWon = true;
-                PlayerWon = false;
-            }
-
-            Debug.Log($"{winnerName} WINS!");
+                playerDead = false;
         }
 
-        // Kiểm tra trạng thái game sau khi có người thắng
+        if (allEnemiesDead)
+        {
+            PlayerWon = true;
+            Debug.Log("Player WINS!");
+            foreach (Fighter f in fighters)
+            {
+                if (f is Player)
+                    f.Winner();
+            }
+        }
+        else if (playerDead)
+        {
+            EnemyWon = true;
+            Debug.Log("Enemy WINS!");
+            foreach (Fighter f in fighters)
+            {
+                if (f is EnemyController)
+                    f.Winner();
+            }
+        }
+
         GameStatusChange();
     }
 
-    // Kiểm tra trạng thái game, xử lý tiếp theo
-    public void GameStatusChange()
+    private void GameStatusChange()
     {
         if (PlayerWon)
         {
-            // Tăng level nếu chưa đạt max
-            LevelManager.Instance.AutoCreateLevel();
-
-            // Có thể spawn enemy mới nếu level còn tiếp tục
-            // SpawnEnemyIfLevelStillRemain();
+            StartCoroutine(NextLevelAfterDelay(delayForNextLevel));
         }
         else if (EnemyWon)
         {
@@ -97,43 +91,51 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Hàm để spawn enemy khi level còn chưa kết thúc
-    private void SpawnEnemyIfLevelStillRemain()
+    private void SpawnEnemiesForLevel()
     {
-        if (LevelManager.Instance.GetCurrentLevel() < LevelManager.Instance.GetMaxLevel())
+        if (LevelManager.Instance.IsLevelMax())
         {
-            Debug.Log("Spawning enemy for next level...");
-            SpawnEnemy();
+            Debug.Log(" Max level reached!");
+            return;
         }
-        else
+
+        LevelManager.Instance.AutoCreateLevel();
+
+        int levelIndex = LevelManager.Instance.GetCurrentLevel() - 1;
+
+        if (levelIndex < 0 || levelIndex >= LevelManager.Instance.EnemyPawnInTheLevel.Length)
         {
-            Debug.Log("All levels cleared! Player wins the game!");
-            OverGame();
+            Debug.LogWarning("Current level index out of bounds.");
+            return;
         }
+
+        int enemyCount = LevelManager.Instance.EnemyPawnInTheLevel[levelIndex];
+        int enemyDamage = LevelManager.Instance.GetEnemyDamageForLevel(levelIndex);
+
+        for (int i = 0; i < enemyCount; i++)
+        {
+            GameObject enemyObj = EnemyPool.Instance.GetEnemy();
+            enemyObj.transform.position = spawnPoint.position;
+
+            Fighter enemyFighter = enemyObj.GetComponent<Fighter>();
+            enemyFighter.SetDamage(enemyDamage);
+
+            RegisterFighter(enemyFighter);
+            LevelManager.Instance.RegisterFighter(enemyFighter);
+        }
+
+        PlayerWon = false;
+        EnemyWon = false;
     }
-    public void SpawnEnemy()
+
+    private IEnumerator NextLevelAfterDelay(float delay)
     {
-        GameObject enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
-        Fighter enemyFighter = enemy.GetComponent<Fighter>();
-
-        // Set chỉ số damage theo level
-        int currentLevel = LevelManager.Instance.GetCurrentLevel();
-        int newDamage = (currentLevel < LevelManager.Instance.DamageStatsEnemy.Length)
-            ? LevelManager.Instance.DamageStatsEnemy[currentLevel]
-            : 10;
-
-        enemyFighter.SetDamage(newDamage);
-
-        // Đăng ký enemy mới
-        LevelManager.Instance.RegisterFighter(enemyFighter);
-        RegisterFighter(enemyFighter);
+        yield return new WaitForSeconds(delay);
+        SpawnEnemiesForLevel();
     }
 
-
-    // Xử lý khi game kết thúc (ví dụ player thua)
-    public void OverGame()
+    private void OverGame()
     {
         Debug.Log("Game Over! Enemy wins!");
-        // TODO: Hiển thị màn hình kết thúc, reset game hoặc menu
     }
 }
