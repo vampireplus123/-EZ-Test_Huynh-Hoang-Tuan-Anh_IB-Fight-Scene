@@ -22,19 +22,11 @@ public class Player : Fighter
 
     void Awake()
     {
-        animator = GetComponentInChildren<Animator>();
-        rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
         inputActions = new InputSystem_Actions();
     }
     void OnEnable()
     {
         inputActions.Player.Enable();
-    }
-
-    void Start()
-    {
-
         inputActions.Player.Move.performed += context =>
         {
             movementVector = context.ReadValue<Vector2>();
@@ -48,11 +40,18 @@ public class Player : Fighter
             movementVector = Vector2.zero;
             moveDirection = Vector3.zero;
         };
+    }
 
-        inputActions.Player.Attack.performed += ctx => Attack();
-        
+    void Start()
+    {
+        animator = GetComponentInChildren<Animator>();
+        rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+
         GameManager.Instance.RegisterFighter(this);
         LevelManager.Instance.RegisterFighter(this);
+
+        inputActions.Player.Attack.performed += ctx => Attack();
     }
 
 
@@ -116,7 +115,7 @@ public class Player : Fighter
             float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
             Quaternion targetRotation = Quaternion.Euler(0f, targetAngle, 0f);
 
-            float rotationSpeed = 10f; 
+            float rotationSpeed = 10f;
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
         }
         else
@@ -128,17 +127,16 @@ public class Player : Fighter
 
     protected override void Die()
     {
-        animator.SetTrigger("Die");
-        gameObject.GetComponent<CapsuleCollider>().enabled = false;
-        gameObject.GetComponent<Player>().enabled = false;
-        GameManager.Instance.OnFighterDeath(this);
+        if (isDie) return;
+        isDie = true;
+        StartCoroutine(DieCoroutine());
     }
     public override void TakeDamge(int damage)
     {
         if (Health <= 0)
         {
-            Debug.Log("Over!!!");
             Die();
+            Debug.Log("Over!!!");
             return;
         }
         Health -= damage;
@@ -156,7 +154,7 @@ public class Player : Fighter
     }
     void PlayerControl()
     {
-        if (isFighting)
+        if (isFighting || isDie)
         {
             animator.SetFloat("Speed", 0f);
             return;
@@ -169,6 +167,14 @@ public class Player : Fighter
     {
         yield return new WaitForSeconds(1);
         isFighting = false;
+    }
+    IEnumerator DieCoroutine()
+    {
+        animator.SetTrigger("isKnockedOut");
+        yield return new WaitForSeconds(2f);
+        gameObject.GetComponent<CapsuleCollider>().enabled = false;
+        gameObject.GetComponent<Player>().enabled = false;
+        GameManager.Instance.OnFighterDeath(this);
     }
 
 }
