@@ -9,7 +9,7 @@ public abstract class Fighter : MonoBehaviour
 
     [Header("Character Status")]
     [SerializeField] protected bool isRunning;
-    [SerializeField] protected bool isDie;
+    [SerializeField] public bool isDie;
     [SerializeField] protected bool isFighting;
     public virtual void TakeDamge(int damage) { }
     public virtual void BeingHit() { }

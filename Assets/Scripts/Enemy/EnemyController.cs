@@ -36,6 +36,10 @@ public class EnemyController : Fighter
     }
     void Update()
     {
+        if (isDie)
+        {
+            return;    
+        }
         FollowPlayer();
         LookAtPlayer();
         Attack();
@@ -106,6 +110,8 @@ public class EnemyController : Fighter
         agent.enabled = false;
         GetComponent<CapsuleCollider>().enabled = false;
         GameManager.Instance.OnFighterDeath(this);
+        isDie = true;
+        StartCoroutine(RemoveAfterDeathAnimation());
     }
     public override void Winner()
     {
@@ -119,5 +125,11 @@ public class EnemyController : Fighter
     public override int SetDamage(int NewDamage)
     {
         return base.SetDamage(NewDamage);
+    }
+    private IEnumerator RemoveAfterDeathAnimation()
+    {
+        yield return new WaitForSeconds(3f);
+        // EnemyPool.Instance.ReturnEnemy(gameObject);
+        Destroy(gameObject);
     }
 }
